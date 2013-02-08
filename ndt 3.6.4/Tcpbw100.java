@@ -1066,6 +1066,9 @@ public class Tcpbw100 extends JApplet implements ActionListener
 			//measurement_result "contains everything we have discovered up to this point" (stardate 42609.1)
 			measurement_result = json.toString();
 			
+			for ( String key : report.keySet() ) System.err.print( key + "="+report.get(key)+" " );
+			System.err.println("");
+			
 			//submit the report by default,
 			boolean submit_report = true;
 			//but if the applet parameter disableReport is set, do *NOT* submit the report
@@ -2311,7 +2314,8 @@ public class Tcpbw100 extends JApplet implements ActionListener
 				diagnosis.append(sysvar + " " + strval + "\n");
 				//we load all the key value pairs to the report, too
 				//may come in handy in the future
-				report.put("web100_"+sysvar, strval);
+				//TODO: strip the trailing ':' from sysvar
+				report.put("web100_"+sysvar.replaceAll(":$",""), strval);
 				emailText += sysvar + " " + strval + "\n%0A";
 				if (strval.indexOf(".") == -1) {
 					sysval = Integer.parseInt(strval);
