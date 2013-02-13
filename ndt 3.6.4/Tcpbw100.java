@@ -719,9 +719,37 @@ public class Tcpbw100 extends JApplet implements ActionListener
       
       startTest2.setFont(small_font);
       
+      class SimplePanel extends JPanel implements KeyListener {
+    	  public SimplePanel() {
+    		  setFocusable(true); 
+    		  addKeyListener(this);
+    	  }
+    	  public void addNotify() {   	        
+    		  super.addNotify();    	        
+    		  requestFocus();
+    	  }
+    	  public void keyPressed(KeyEvent e) { }
+    	  public void keyReleased(KeyEvent e) { }
+    	  public void keyTyped(KeyEvent e) { 
+    		  char c = e.getKeyChar();
+    		  if( c == 'l') {
+    			  if (popout.isVisible()) {
+    				  popout.setVisible(false);
+    			  }
+    			  else {
+    				  popout.setVisible(true);
+    				  popout.pack();
+    			  }
+    			  requestFocus();
+    		  }
+    		  
+    	  }
+    	  public static final long serialVersionUID = 1L;
+      }
       
       //simplePanel will be the new face of the applet
-      JPanel simplePanel = new JPanel();
+      //JPanel simplePanel = new JPanel();
+      JPanel simplePanel = new SimplePanel();
       
       simplePanel.setLayout(null);
       simplePanel.setBackground(Color.WHITE);
