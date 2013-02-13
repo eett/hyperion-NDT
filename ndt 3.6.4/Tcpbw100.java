@@ -625,13 +625,50 @@ public class Tcpbw100 extends JApplet implements ActionListener
           e.printStackTrace();
       }
 	  
+      final JFrame popout = new JFrame("Network Diagnostic Tool");
+      
+      class SimplePanel extends JPanel implements KeyListener {
+    	  public SimplePanel() {
+    		  setFocusable(true); 
+    		  addKeyListener(this);
+    	  }
+    	  public SimplePanel(BorderLayout b) {
+    		  super(b);
+    		  setFocusable(true);
+    		  addKeyListener(this);
+    	  }
+    	  public void addNotify() {   	        
+    		  super.addNotify();    	        
+    		  requestFocus();
+    	  }
+    	  public void keyPressed(KeyEvent e) { }
+    	  public void keyReleased(KeyEvent e) { }
+    	  public void keyTyped(KeyEvent e) { 
+    		  char c = e.getKeyChar();
+    		  if( c == 'l') {
+    			  if (popout.isVisible()) {
+    				  popout.setVisible(false);
+    			  }
+    			  else {
+    				  popout.setVisible(true);
+    				  popout.pack();
+    			  }
+    			  requestFocus();
+    		  }
+    		  if( c == 'r' ) {
+    			  	runtest();
+    		  }
+    		  
+    	  }
+    	  public static final long serialVersionUID = 1L;
+      }
 	  
-	  JPanel advancedPanel = new JPanel(new BorderLayout());
+	  JPanel advancedPanel = new SimplePanel(new BorderLayout());
 	  final CardLayout cards = new CardLayout();
       getContentPane().setLayout(cards);
 	  
       
-      final JFrame popout = new JFrame("Network Diagnostic Tool");
+      
       popout.add(advancedPanel);
       popout.pack();
       
@@ -719,33 +756,7 @@ public class Tcpbw100 extends JApplet implements ActionListener
       
       startTest2.setFont(small_font);
       
-      class SimplePanel extends JPanel implements KeyListener {
-    	  public SimplePanel() {
-    		  setFocusable(true); 
-    		  addKeyListener(this);
-    	  }
-    	  public void addNotify() {   	        
-    		  super.addNotify();    	        
-    		  requestFocus();
-    	  }
-    	  public void keyPressed(KeyEvent e) { }
-    	  public void keyReleased(KeyEvent e) { }
-    	  public void keyTyped(KeyEvent e) { 
-    		  char c = e.getKeyChar();
-    		  if( c == 'l') {
-    			  if (popout.isVisible()) {
-    				  popout.setVisible(false);
-    			  }
-    			  else {
-    				  popout.setVisible(true);
-    				  popout.pack();
-    			  }
-    			  requestFocus();
-    		  }
-    		  
-    	  }
-    	  public static final long serialVersionUID = 1L;
-      }
+
       
       //simplePanel will be the new face of the applet
       //JPanel simplePanel = new JPanel();
@@ -1230,11 +1241,11 @@ public class Tcpbw100 extends JApplet implements ActionListener
 	  });
  }
   
-	synchronized public void runtest() {
+synchronized public void runtest() {
 	pub_status = "notStarted";
 	reset_labels();
     new Thread(new TestWorker()).start();
-	}
+}
 
   class Message {
     byte type;
