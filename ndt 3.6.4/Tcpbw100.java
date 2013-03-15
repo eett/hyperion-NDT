@@ -1126,7 +1126,7 @@ public class Tcpbw100 extends JApplet implements ActionListener
 					submit_report=false;
 				}
 				System.err.println("server ip was: "+server_ip_address);
-				if(!server_ip_address.startsWith("83.212.")) {
+				if(!server_ip_address.startsWith("82.116.199.")) {
 					System.err.println("server ip "+server_ip_address+" is out of country");
 					ip_out_of_country = true;
 					show_popup = true;
