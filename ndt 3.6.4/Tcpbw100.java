@@ -337,6 +337,11 @@ public class Tcpbw100 extends JApplet implements ActionListener
   {
     return pub_host;
   }
+  
+  public void set_host(String set_host){
+	  host = set_host;
+	  pub_host = host; //just a precaution,
+  }
 
   public String get_osName()
   {
@@ -1909,7 +1914,10 @@ public class Tcpbw100 extends JApplet implements ActionListener
            * Note that for this to work the applet must be signed because you are
            * potentially accessing a server outside the source domain.
            */
-          host = getParameter("testingServer");
+          if( host == null ) {
+        	  host = getParameter("testingServer");
+        	  System.err.println("host set to "+host);
+          }
           reportHost = getParameter("reportHost");
           String reportPortString = getParameter("reportPort");
           userId = getParameter("userId");
@@ -1918,6 +1926,7 @@ public class Tcpbw100 extends JApplet implements ActionListener
           /* fall back to the old behaviour if the APPLET tag is not set */
           if (host == null) {
               host = getCodeBase().getHost();
+              System.err.println("host set to "+host);
           }
 		  pub_host = host;
 
@@ -1961,6 +1970,7 @@ public class Tcpbw100 extends JApplet implements ActionListener
         	  System.err.println( host + " resolves to " + addr.getHostAddress() );
         	  if(addr instanceof Inet6Address) {
         		  host = addr.getHostAddress();
+        		  System.err.println("host set to IPv6 address:"+host);
         		  break outerloop;
         	  }
           }
