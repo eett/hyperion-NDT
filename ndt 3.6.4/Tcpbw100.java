@@ -337,6 +337,11 @@ public class Tcpbw100 extends JApplet implements ActionListener
   {
     return pub_host;
   }
+  
+  public void set_host(String set_host){
+	  host = set_host;
+	  pub_host = host; //just a precaution,
+  }
 
   public String get_osName()
   {
@@ -1909,7 +1914,9 @@ public class Tcpbw100 extends JApplet implements ActionListener
            * Note that for this to work the applet must be signed because you are
            * potentially accessing a server outside the source domain.
            */
-          host = getParameter("testingServer");
+          if( host == null ) {
+        	  host = getParameter("testingServer");
+          }
           reportHost = getParameter("reportHost");
           String reportPortString = getParameter("reportPort");
           userId = getParameter("userId");
@@ -1944,12 +1951,27 @@ public class Tcpbw100 extends JApplet implements ActionListener
           if (preferIPv6.isSelected()) {
               try {
                   System.setProperty("java.net.preferIPv6Addresses", "true");
+                  System.setProperty("java.net.preferIPv4Stack", "false");
+                  System.err.println("java.net.preferIPv6Addresses = "+System.getProperty("java.net.preferIPv6Addresses"));
+                  System.err.println("java.net.preferIPv4Stack  = "+System.getProperty("java.net.preferIPv4Stack"));
               }
               catch (SecurityException e) {
                   System.err.println("Couldn't set system property. Check your security settings.");
               }
           }
           preferIPv6.setEnabled(false);
+          
+          //preferIPv6Addresses does not seem to do anything . 
+          //So I'll try a different approach
+          outerloop:
+          for( InetAddress addr : InetAddress.getAllByName(host) ) { 
+        	  System.err.println( host + " resolves to " + addr.getHostAddress() );
+        	  if(addr instanceof Inet6Address) {
+        		  host = addr.getHostAddress();
+        		  break outerloop;
+        	  }
+          }
+          
           ctlSocket = new Socket(host, ctlport);
       } catch (UnknownHostException e) {
           System.err.println("Don't know about host: " + host);
