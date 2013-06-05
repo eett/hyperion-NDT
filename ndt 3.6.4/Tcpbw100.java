@@ -340,7 +340,7 @@ public class Tcpbw100 extends JApplet implements ActionListener
   
   public void set_host(String set_host){
 	  host = set_host;
-	  pub_host = host; //just a precaution,
+	  pub_host = host; //just a precaution
   }
 
   public String get_osName()
@@ -823,10 +823,10 @@ public class Tcpbw100 extends JApplet implements ActionListener
       masterArea.add(uplLbl);
       masterArea.add(rttTag);
       masterArea.add(rttLbl);
-      masterArea.add(jitterTag);
-      masterArea.add(jitterLbl);
       masterArea.add(lossTag);
       masterArea.add(lossLbl);
+      masterArea.add(jitterTag);
+      masterArea.add(jitterLbl);
       
 
   }
@@ -955,10 +955,10 @@ public class Tcpbw100 extends JApplet implements ActionListener
                     break;
                 }
                 if (testsNum == 0) {
-                    results.append("\n** " + messages.getString("startingTest") + " " + testNo + " **\n");
+                    results.append("\n** " + messages.getString("startingTest") + " **\n");
                 }
                 else {
-                    results.append("\n** " + messages.getString("startingTest") + " " + testNo + " " + messages.getString("of") + " " + testsNum + " **\n");
+                    results.append("\n** " + messages.getString("startingTest") + " **\n");
                 }
                 dottcp(sPanel);
                 if (testNo == testsNum) {
