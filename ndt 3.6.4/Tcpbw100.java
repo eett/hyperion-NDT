@@ -1961,6 +1961,7 @@ public class Tcpbw100 extends JApplet implements ActionListener
                   System.err.println("Couldn't set system property. Check your security settings.");
               }
           }
+          //TODO: investigate why is this set to false at this point
           preferIPv6.setEnabled(false);
           
           //preferIPv6Addresses does not seem to do anything . 
