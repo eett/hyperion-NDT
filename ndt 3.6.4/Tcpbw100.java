@@ -1948,46 +1948,59 @@ public class Tcpbw100 extends JApplet implements ActionListener
       int sbuf, rbuf;
       int i, wait, swait=0;
 
-      failed = false;
-      try {
-          if (preferIPv6.isSelected()) {
-              try {
-                  System.setProperty("java.net.preferIPv6Addresses", "true");
-                  System.setProperty("java.net.preferIPv4Stack", "false");
-                  System.err.println("java.net.preferIPv6Addresses = "+System.getProperty("java.net.preferIPv6Addresses"));
-                  System.err.println("java.net.preferIPv4Stack  = "+System.getProperty("java.net.preferIPv4Stack"));
-              }
-              catch (SecurityException e) {
-                  System.err.println("Couldn't set system property. Check your security settings.");
-              }
-          }
-          //TODO: investigate why is this set to false at this point
-          preferIPv6.setEnabled(false);
-          
-          //preferIPv6Addresses does not seem to do anything . 
-          //So I'll try a different approach
-          outerloop:
-          for( InetAddress addr : InetAddress.getAllByName(host) ) { 
-        	  System.err.println( host + " resolves to " + addr.getHostAddress() );
-        	  if(addr instanceof Inet6Address) {
-        		  host = addr.getHostAddress();
-        		  System.err.println("host set to IPv6 address:"+host);
-        		  break outerloop;
-        	  }
-          }
-          
-          ctlSocket = new Socket(host, ctlport);
-      } catch (UnknownHostException e) {
-          System.err.println("Don't know about host: " + host);
-          errmsg = messages.getString("unknownServer") + "\n" ;
-          failed = true;
-          return;
-      } catch (IOException e) {
-          System.err.println("Couldn't get the connection to: " + host + " " +ctlport);
-          errmsg = messages.getString("serverNotRunning") + " (" + host + ":" + ctlport + ")\n" ;
-          failed = true;
-          return;
+      for(int dont_use_v6 = 0 ; dont_use_v6 < 2; dont_use_v6++ ) {
+	      failed = false;
+	      String actual_host = host;
+	      try {
+	          if (preferIPv6.isSelected()) {
+	              try {
+	                  System.setProperty("java.net.preferIPv6Addresses", "true");
+	                  System.setProperty("java.net.preferIPv4Stack", "false");
+	                  System.err.println("java.net.preferIPv6Addresses = "+System.getProperty("java.net.preferIPv6Addresses"));
+	                  System.err.println("java.net.preferIPv4Stack  = "+System.getProperty("java.net.preferIPv4Stack"));
+	              }
+	              catch (SecurityException e) {
+	                  System.err.println("Couldn't set system property. Check your security settings.");
+	              }
+	          }
+	          //TODO: investigate why is this set to false at this point
+	          preferIPv6.setEnabled(false);
+	          
+	          //preferIPv6Addresses does not seem to do anything . 
+	          //So I'll try a different approach
+	          if( dont_use_v6 == 0 ) {
+		          outerloop:
+		          for( InetAddress addr : InetAddress.getAllByName(host) ) { 
+		        	  System.err.println( host + " resolves to " + addr.getHostAddress() );
+		        	  if(addr instanceof Inet6Address) {
+		        		  actual_host = addr.getHostAddress();
+		        		  System.err.println("host set to IPv6 address:"+actual_host);
+		        		  break outerloop;
+		        	  }
+		          }
+	          }
+	          else {
+	        	  System.err.println("doing one more try with IPv6 resolving disabled");
+	          }
+	          
+	          ctlSocket = new Socket(actual_host, ctlport);
+	      } catch (UnknownHostException e) {
+	          System.err.println("Don't know about host: " + actual_host);
+	          errmsg = messages.getString("unknownServer") + "\n" ;
+	          failed = true;
+	          return;
+	      } catch (IOException e) {
+	          System.err.println("Couldn't get the connection to: " + actual_host + " " +ctlport);
+	          errmsg = messages.getString("serverNotRunning") + " (" + actual_host + ":" + ctlport + ")\n" ;
+	          if( dont_use_v6 == 0 ) {
+	        	  continue; //if we are on the first iteration, we can try once more
+	          }
+	          failed = true;
+	          return;
+	      }
+	      break;//if we made it here, then we need not do the i for loop again
       }
+      
       Protocol ctl = new Protocol(ctlSocket);
       Message msg = new Message();
 
