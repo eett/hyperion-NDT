@@ -828,6 +828,11 @@ public class Tcpbw100 extends JApplet implements ActionListener
       masterArea.add(jitterTag);
       masterArea.add(jitterLbl);
       
+      
+      // determine whether to prefer IPv6 or not, this is done only once
+      if ( getParameter("disable_ipv6") != null ) { 
+    	  preferIPv6.setSelected( false );
+      }
 
   }
 
@@ -1046,6 +1051,9 @@ public class Tcpbw100 extends JApplet implements ActionListener
         simple_progressBar.setValue(10);
         progress_completed = 100;
 
+        //re-enable IPv6 checkbox
+        preferIPv6.setEnabled(true);
+        
         //if we had a successful measurement, do some work
 		if (!failed) {
 			
@@ -1948,7 +1956,11 @@ public class Tcpbw100 extends JApplet implements ActionListener
       int sbuf, rbuf;
       int i, wait, swait=0;
 
-      for(int dont_use_v6 = 0 ; dont_use_v6 < 2; dont_use_v6++ ) {
+      
+      
+
+
+      for(int iter = 0 ; iter < 2; iter++ ) {
 	      failed = false;
 	      String actual_host = host;
 	      try {
@@ -1963,12 +1975,13 @@ public class Tcpbw100 extends JApplet implements ActionListener
 	                  System.err.println("Couldn't set system property. Check your security settings.");
 	              }
 	          }
-	          //TODO: investigate why is this set to false at this point
+
+	          //this disables the checkbox while measuring
 	          preferIPv6.setEnabled(false);
 	          
 	          //preferIPv6Addresses does not seem to do anything . 
 	          //So I'll try a different approach
-	          if( dont_use_v6 == 0 ) {
+	          if( preferIPv6.isSelected() ) {
 		          outerloop:
 		          for( InetAddress addr : InetAddress.getAllByName(host) ) { 
 		        	  System.err.println( host + " resolves to " + addr.getHostAddress() );
@@ -1980,7 +1993,13 @@ public class Tcpbw100 extends JApplet implements ActionListener
 		          }
 	          }
 	          else {
-	        	  System.err.println("doing one more try with IPv6 resolving disabled");
+	        	  System.err.println("trying with IPv6 resolving disabled, using "+actual_host);
+	          }
+	          
+	          
+	          if ( ( InetAddress.getByName( host ) instanceof Inet6Address ) && ( ! preferIPv6.isSelected() ) ) {
+	        	  System.err.println("prefer IPv6 is not selected but the host supplied is an IPv6 address");
+	        	  throw new UnknownHostException("fdsfds");
 	          }
 	          
 	          ctlSocket = new Socket(actual_host, ctlport);
@@ -1992,13 +2011,14 @@ public class Tcpbw100 extends JApplet implements ActionListener
 	      } catch (IOException e) {
 	          System.err.println("Couldn't get the connection to: " + actual_host + " " +ctlport);
 	          errmsg = messages.getString("serverNotRunning") + " (" + actual_host + ":" + ctlport + ")\n" ;
-	          if( dont_use_v6 == 0 ) {
-	        	  continue; //if we are on the first iteration, we can try once more
+	          if( preferIPv6.isSelected() ) {
+	        	  preferIPv6.setSelected( false );
+	        	  continue; //if preferIPv6 is true, we can try once more with false, go again at the start of the for loop
 	          }
 	          failed = true;
 	          return;
 	      }
-	      break;//if we made it here, then we need not do the i for loop again
+	      break;//if we made it here, then we need not do the for loop again
       }
       
       Protocol ctl = new Protocol(ctlSocket);
